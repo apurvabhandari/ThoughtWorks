@@ -1,0 +1,154 @@
+# Default values for mediawiki-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+
+serviceAccountName: default
+
+ingress:
+  enabled: false
+  annotations: {}
+
+mediawiki: 
+  enabled: true
+  name: mediawiki
+  labels: mediawiki
+  selectorLabels: mediawiki
+  replicaCount: 1
+
+  image:
+    repository: mediawiki
+    AppVersion: latest
+    pullPolicy: Always
+
+  imagePullSecrets: []
+  nameOverride: "mediawiki"
+  fullnameOverride: "mediawiki"
+
+#  serviceAccount:
+    # Specifies whether a service account should be created
+#    create: false
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+#    name: mediawiki
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  service:
+    type: LoadBalancer
+    port: 80
+
+
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  persistentVolume:
+    annotations: 
+      app: mediawikipvc
+    accessModes: 
+      - ReadWriteOnce
+    size: 100Mi
+
+
+database:
+  enabled: true
+  name: database
+  labels: mariadb
+  selectorLabels: mariadb
+  replicaCount: 1
+
+  image:
+    repository: mariadb
+    AppVersion: latest
+    pullPolicy: Always
+
+  mysql_database: my_wiki
+  mysql_password: example
+  mysql_random_root_password: "yes"
+  mysql_user: wikiuser
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+#  serviceAccount:
+    # Specifies whether a service account should be created
+#    create: false
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+#    name:
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  secrets: database
+
+  service:
+    type: ClusterIP
+    port: 3306
+
+
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  persistentVolume:
+    annotations: 
+      app: databasepvc
+    accessModes: 
+      - ReadWriteOnce
+    size: 1G

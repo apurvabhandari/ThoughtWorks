@@ -1,0 +1,56 @@
+{{- if .Values.mediawiki.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.mediawiki.name }}-deployment
+  labels:
+    app: {{ .Values.mediawiki.labels }}
+    helm.sh/chart: {{ .Chart.Version | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.mediawiki.selectorLabels }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.mediawiki.selectorLabels }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ .Values.serviceAccountName }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.mediawiki.image.repository }}:{{ .Values.mediawiki.image.AppVersion }}"
+          imagePullPolicy: {{ .Values.mediawiki.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          - mountPath: /var/www/html/images
+            name: {{ .Values.mediawiki.name }}-pvc
+      volumes:
+      - name: {{ .Values.mediawiki.name }}-pvc
+        persistentVolumeClaim:
+          claimName: {{ .Values.mediawiki.name }}-pvc
+{{- end }}

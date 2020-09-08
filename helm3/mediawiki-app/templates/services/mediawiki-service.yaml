@@ -1,0 +1,20 @@
+{{- if .Values.mediawiki.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.mediawiki.name }}svc
+  labels:
+    app: {{ .Values.mediawiki.labels }}
+    helm.sh/chart: {{ .Chart.Version | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+spec:
+  type: {{ .Values.mediawiki.service.type }}
+  ports:
+    - port: {{ .Values.mediawiki.service.port }}
+      targetPort: {{ .Values.mediawiki.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+      app: {{ .Values.mediawiki.selectorLabels }}
+{{- end }}

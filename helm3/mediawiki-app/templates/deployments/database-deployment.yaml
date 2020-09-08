@@ -1,0 +1,63 @@
+{{- if .Values.database.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.database.name }}-deployment
+  labels:
+    app: {{ .Values.database.labels }}
+    helm.sh/chart: {{ .Chart.Version | quote}}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.database.selectorLabels }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.database.selectorLabels }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ .Values.serviceAccountName }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.AppVersion }}"
+          imagePullPolicy: {{ .Values.database.image.pullPolicy }}
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom: 
+                secretKeyRef:
+                  key: mysql_database
+                  name: {{ .Values.database.secrets }}-env-secrets
+            - name: MYSQL_PASSWORD
+              valueFrom: 
+                secretKeyRef:
+                  key: mysql_password
+                  name: {{ .Values.database.secrets }}-env-secrets
+            - name: MYSQL_USER
+              valueFrom: 
+                secretKeyRef:
+                  key: mysql_user
+                  name: {{ .Values.database.secrets }}-env-secrets
+            - name: MYSQL_RANDOM_ROOT_PASSWORD
+              valueFrom: 
+                secretKeyRef:
+                  key: mysql_random_root_password
+                  name: {{ .Values.database.secrets }}-env-secrets             
+          volumeMounts:
+          - mountPath: /var/lib/mysql
+            name: {{ .Values.database.name }}-pvc
+      volumes:
+      - name: {{ .Values.database.name }}-pvc
+        persistentVolumeClaim:
+          claimName: {{ .Values.database.name }}-pvc
+{{- end }}

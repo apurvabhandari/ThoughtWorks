@@ -1,0 +1,31 @@
+{{- if .Values.mediawiki.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  {{- if .Values.mediawiki.persistentVolume.annotations }}
+  annotations:
+{{ toYaml .Values.mediawiki.persistentVolume.annotations | indent 4 }}
+  {{- end }}
+  labels:
+    app: {{ .Values.mediawiki.labels }}
+    helm.sh/chart: {{ .Chart.Version | quote }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+  name: {{ .Values.mediawiki.name }}-pvc
+spec:
+  accessModes:
+{{ toYaml .Values.mediawiki.persistentVolume.accessModes | indent 4 }}
+{{- if .Values.mediawiki.persistentVolume.storageClass }}
+{{- if (eq "-" .Values.mediawiki.persistentVolume.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.mediawiki.persistentVolume.storageClass }}"
+{{- end }}
+{{- end }}
+{{- if .Values.mediawiki.persistentVolume.volumeBindingMode }}
+  volumeBindingModeName: "{{ .Values.mediawiki.persistentVolume.volumeBindingMode }}"
+{{- end }}
+  resources:
+    requests:
+      storage: "{{ .Values.mediawiki.persistentVolume.size }}"
+{{- end -}}

@@ -1,6 +1,8 @@
 # ThoughtWorks
 ## Assigment
-Automate Mediawiki App Deployment using Kubernetes with Helm chart. Here, there are tools required are Kubernetes with internet access to pull images from docker hub and Helm 3 installed on machines from where you are running this helm chart.
+Automate Mediawiki App Deployment using Kubernetes with Helm chart.<br>
+I have choose Kubernetes with Helm Chart/ any equivalent automation.<br>
+Here, there are tools required are Kubernetes with internet access to pull images from docker hub and Helm 3 installed on machines from where you are running this helm chart.
 ### Deployment involves: 
 1. Kubernetes 2. External IP (Access App) 3. Helm 3 
 
